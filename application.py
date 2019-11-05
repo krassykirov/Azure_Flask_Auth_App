@@ -25,12 +25,10 @@ def login():
             login_name = request.form['LoginName']
             Password = request.form['Password']
             flash('login_name {},Password {} '.format(login_name, Password))
-            conn = pyodbc.connect(os.environ['azure_sql'])
+            conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:krassy.database.windows.net;PORT=1433;DATABASE=krassy_db;UID=krassykirov;PWD=Mitra194455$')
             cursor = conn.cursor()
             username = cursor.execute("select LoginName from Users where LoginName='%s'"% login_name).fetchval()
             password = cursor.execute("select Password from Users where LoginName='%s'"% login_name).fetchval()
-            flash('username {}, password {} '.format(username, password))
-            flash(username == login_name and password == Password)
             if username == login_name and password == Password:
                 return render_template(
                     'login.html',
@@ -56,7 +54,8 @@ def login():
 def azuresql():
     if request.method == 'GET':
         try:
-            conn = pyodbc.connect(os.environ['azure_sql'])
+            conn = pyodbc.connect(
+                'DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:krassy.database.windows.net;PORT=1433;DATABASE=krassy_db;UID=krassykirov;PWD=Mitra194455$')
             cursor = conn.cursor()
             cursor.execute("select * from [dbo].[employee]")
             az_users = cursor.fetchall()
@@ -79,7 +78,8 @@ def azuresql():
             lname = request.form['lname']
             gender = request.form['gender']
             birth_date = request.form['birth_date']
-            conn = pyodbc.connect(os.environ['azure_sql'])
+            conn = pyodbc.connect(
+                'DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:krassy.database.windows.net;PORT=1433;DATABASE=krassy_db;UID=krassykirov;PWD=Mitra194455$')
             cursor = conn.cursor()
             az_users = list(cursor.execute("select staff_number from [dbo].[employee]"))
             for x in az_users:
