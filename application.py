@@ -24,7 +24,6 @@ def login():
           try:
             login_name = request.form['LoginName']
             Password = request.form['Password']
-            flash('login_name {},Password {} '.format(login_name, Password))
             conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:krassy.database.windows.net;PORT=1433;DATABASE=krassy_db;UID=krassykirov;PWD=Mitra194455$')
             cursor = conn.cursor()
             username = cursor.execute("select LoginName from Users where LoginName='%s'"% login_name).fetchval()
