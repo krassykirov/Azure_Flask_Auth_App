@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block content %}
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+</head>
+<h3> Fetching some test data from Azure SQL</h3>
+
+  <ul>
+    {% for x in az_users %}
+        <li>{{ x }}</li>
+    {% endfor %}
+  </ul>
+ <p>{{ message }}</p>
+ <p>{{ error }}</p>
+
+	<div class="container" style="min-height:100% width:80%">
+	{% with messages = get_flashed_messages() %}
+	  {% if messages %}
+	    {% for message in messages %}
+		  <div class="alert alert-warning alert-dismissible" role="alert">
+		  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+			{{message}}
+		  </div>
+		{% endfor %}
+	  {% endif %}
+	{% endwith %}
+	{% block body %}{% endblock %}
+	</div>
+
+<div class="container">
+  <h2>User Details</h2>
+  <form action="/azuresql" method="POST">
+    <div class="form-group">
+      <label for="staff_number">User ID:</label>
+      <input type="text" class="form-control" id="staff_number" placeholder="Enter ID" name="staff_number" required>
+    </div>
+    <div class="form-group">
+      <label for="fname">Fisrt Name:</label>
+      <input type="text" class="form-control" id="fname" placeholder="Enter First Name" name="fname" required>
+    </div>
+    <div class="form-group">
+      <label for="lname">Last Name:</label>
+      <input type="text" class="form-control" id="lname" placeholder="Enter Last Name" name="lname" required>
+    </div>
+    <div class="form-group">
+      <select name='gender' required>
+     <option value='m' >m</option>
+     <option value='f'>f</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="date">Birth Date :</label>
+      <input type="date" class="form-control" id="date" placeholder="Enter Birth Date" name="birth_date" required>
+     </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+  </form>
+ </div>
+
+<b><a href="https://docs.microsoft.com/bs-cyrl-ba/azure/sql-database/sql-database-connect-query-python">How to Use Python to query an Azure SQL database</a></b>
+
+
+{% endblock %}
