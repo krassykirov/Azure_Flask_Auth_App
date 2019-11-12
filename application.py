@@ -38,12 +38,9 @@ def login():
             flash('username {}, password {} '.format(username, password))
             flash(username == login_name and password == Password)
             if username == login_name and password == Password:
-                resp = make_response(render_template('index.html'))
-                resp.set_cookie('LoginName', login_name)
-                return render_template(
-                    'login.html',
-                     message="Welcome {}!".format(login_name)
-                 )
+                resp = make_response(render_template('login.html'))
+                resp.set_cookie('LoginName', login_name,message="Welcome {}!".format(login_name))
+                return resp
             else:
                 return render_template(
                     'login.html',
