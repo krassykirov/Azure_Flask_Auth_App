@@ -1,11 +1,11 @@
 import json
 import os
 import pyodbc
-from flask import Flask, render_template, request, abort, flash
+import requests
+from flask import Flask, render_template, request, abort, flash, make_response
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'Krassy+Secret_19'
-
+app.config['SECRET_KEY'] = 'secret_key'
 
 @app.route('/')
 @app.route('/home')
@@ -18,23 +18,33 @@ def home():
 @app.route('/login', methods=['GET','POST'])
 def login():
       if request.method == 'GET':
-        return render_template('login.html')
+            name = request.cookies.get('LoginName')
+            if name is not None:
+                return render_template(
+                    'login.html',
+                    error = 'Welcome {}'.format(name)
+                )
+            else:
+                return render_template('login.html' )
 
       elif request.method == 'POST':
           try:
             login_name = request.form['LoginName']
             Password = request.form['Password']
-            conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:krassy.database.windows.net;PORT=1433;DATABASE=krassy_db;UID=krassykirov;PWD=Mitra194455$')
+            conn = pyodbc.connect(os.environ['azure_sql'])
             cursor = conn.cursor()
             username = cursor.execute("select LoginName from Users where LoginName='%s'"% login_name).fetchval()
             password = cursor.execute("select Password from Users where LoginName='%s'"% login_name).fetchval()
+            flash('username {}, password {} '.format(username, password))
+            flash(username == login_name and password == Password)
             if username == login_name and password == Password:
+                resp = make_response(render_template('index.html'))
+                resp.set_cookie('LoginName', login_name)
                 return render_template(
                     'login.html',
-                     message="You Are Logged In"
-                )
+                     message="Welcome {}!".format(login_name)
+                 )
             else:
-                flash("You Are NOT Logged In")
                 return render_template(
                     'login.html',
                      message="You Are NOT Logged In"
@@ -47,20 +57,39 @@ def login():
                     message=error
                 )
 
+@app.route('/secret')
+def key_vault():
+    try:
+        msi_endpoint = os.environ["MSI_ENDPOINT"]
+        msi_secret = os.environ["MSI_SECRET"]
+        token_auth_uri = f"{msi_endpoint}?resource=https://vault.azure.net&api-version=2017-09-01"
+        head_msi = {'Secret': msi_secret}
+        resp = requests.get(token_auth_uri, headers=head_msi)
+        access_token = resp.json()['access_token']
+        endpoint = "https://uaekeyvault.vault.azure.net/secrets/mysecret?api-version=2016-10-01"
+        headers = {"Authorization": 'Bearer {}'.format(access_token)}
+        response = requests.get(endpoint, headers=headers).json()
+        return render_template(
+            'login.html',
+           error= response
+        )
+    except Exception as error:
+        return render_template(
+            'login.html',
+            error="{}".format(error),
+        )
 
 
 @app.route('/azuresql', methods=['POST', 'GET'])
 def azuresql():
     if request.method == 'GET':
         try:
-            conn = pyodbc.connect(
-                'DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:krassy.database.windows.net;PORT=1433;DATABASE=krassy_db;UID=krassykirov;PWD=Mitra194455$')
+            conn = pyodbc.connect(os.environ['azure_sql'])
             cursor = conn.cursor()
-            cursor.execute("select * from [dbo].[employee]")
+            cursor.execute("SELECT * from employee")
             az_users = cursor.fetchall()
             return render_template(
                 'azuresql.html',
-                title='Azure SQL Testing',
                 az_users=az_users
             )
         except Exception as error:
@@ -77,22 +106,21 @@ def azuresql():
             lname = request.form['lname']
             gender = request.form['gender']
             birth_date = request.form['birth_date']
-            conn = pyodbc.connect(
-                'DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:krassy.database.windows.net;PORT=1433;DATABASE=krassy_db;UID=krassykirov;PWD=Mitra194455$')
+            conn = pyodbc.connect(os.environ['azure_sql'])
             cursor = conn.cursor()
-            az_users = list(cursor.execute("select staff_number from [dbo].[employee]"))
+            az_users = list(cursor.execute("SELECT staff_number from employee"))
             for x in az_users:
                 if int(staff_number) in x:
                     flash("ID {} already exist, please use another ID".format(staff_number))
                     return render_template(
                         'azuresql.html',
-                        az_users = cursor.execute("select * from [dbo].[employee]")
+                        az_users = cursor.execute("select * from employee")
                    )
-            sql = ("INSERT INTO dbo.employee ""VALUES(?,?,?,?,?)")
+            sql = ("INSERT INTO employee ""VALUES(?,?,?,?,?)")
             val = (staff_number, fname, lname, gender, birth_date)
             cursor.execute(sql, val)
             conn.commit()
-            az_users = cursor.execute("select * from [dbo].[employee]")
+            az_users = cursor.execute("select * from employee")
             return render_template(
                         'azuresql.html',
                         title='SQL Connection Testing',
@@ -135,6 +163,7 @@ def about():
         'about.html',
         title='About',
     )
+
 
 @app.route('/testing')
 def testing():
