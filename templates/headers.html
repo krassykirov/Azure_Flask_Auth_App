@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block content %}
+<body>
+<h4> Request Headers</h4>
+  <ul>
+    {% for x in hd.items() %}
+        <li>{{ x }}</li>
+    {% endfor %}
+  </ul>
+</body>
+{% endblock %}

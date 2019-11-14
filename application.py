@@ -1,10 +1,9 @@
 import json
 import os
-import struct
-
 import pyodbc
 import requests
 from flask import Flask, render_template, request, abort, flash, make_response
+import adal
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
@@ -80,45 +79,19 @@ def key_vault():
 def azuresql():
     if request.method == 'GET':
         try:
-            connstr = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:krsqlsrv.database.windows.net;PORT=1433;DATABASE=krassy_db;"
-            msi_endpoint = os.environ["MSI_ENDPOINT"]
-            msi_secret = os.environ["MSI_SECRET"]
-            token_auth_uri = f"{msi_endpoint}?resource=https://vault.azure.net&api-version=2017-09-01"
-            head_msi = {'Secret': msi_secret}
-            resp = requests.get(token_auth_uri, headers=head_msi)
-            access_token = resp.json()['access_token']
-            exptoken = b""
-            for i in access_token:
-                exptoken += bytes({i})
-                exptoken += bytes(1)
-                tokenstruct = struct.pack("=i", len(exptoken)) + exptoken
-                conn = pyodbc.connect(connstr, attrs_before={1256: tokenstruct})
-                cursor = conn.cursor()
-                cursor.execute("SELECT * from employee")
-                az_users = cursor.fetchall()
-                return render_template(
-                    'azuresql.html',
-                    az_users=az_users,
-                    error = "azure_sql {}".format(os.environ['azure_sql']),
-                    message = "azure_sql1 {}".format(os.environ['azure_sql1'])
-                )
-            else:
-                conn = pyodbc.connect(os.environ['azure_sql'])
-                cursor = conn.cursor()
-                cursor.execute("SELECT * from employee")
-                az_users = cursor.fetchall()
-                return render_template(
-                    'azuresql.html',
-                    az_users=az_users,
-                    error="azure_sql {}".format(os.environ['azure_sql']),
-                    message="azure_sql1 {}".format(os.environ['azure_sql1'])
-                )
-
+            conn = pyodbc.connect(os.environ['azure_sql'])
+            cursor = conn.cursor()
+            cursor.execute("SELECT * from employee")
+            az_users = cursor.fetchall()
+            return render_template(
+                'azuresql.html',
+                az_users=az_users
+            )
         except Exception as error:
              return render_template(
                 'azuresql.html',
                  error="Something went wrong {}".format(error),
-                 message = "azure_sql {}".format(os.environ['azure_sql'])
+                 message =error
             )
 
     elif request.method == 'POST':
@@ -162,11 +135,7 @@ def azuresql():
 def api_echo():
     if request.method == 'GET':
         hd = request.headers
-        a = []
-        for h in hd.items():
-            a.append('{} <br/>'.format(h))
-
-        return "ECHO: GET\n' {}".format(a)
+        return render_template('headers.html',hd=hd)
 
     elif request.method == 'POST':
         if request.headers['Content-Type'] == 'text/plain':
@@ -203,12 +172,17 @@ def img():
 
 @app.route('/404', methods=['GET', 'POST'])
 def error404():
-    return abort(404, "404!")
-
+    return (render_template(
+        'error.html',
+        error='404 Not Found'
+    )),404
 
 @app.route('/500', methods=['GET', 'POST'])
 def error500():
-    return abort(500, "500!")
+     return (render_template(
+        'error.html',
+        error='500 Server Error'
+    )),500
 
 @app.route('/auth')
 def get_token():
