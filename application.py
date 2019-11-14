@@ -5,7 +5,7 @@ import requests
 from flask import Flask, render_template, request, abort, flash, make_response
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret_key' + os.urandom(12)
+app.config['SECRET_KEY'] = 'secret_key' + str(os.urandom(12))
 
 @app.route('/')
 @app.route('/home')
