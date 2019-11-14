@@ -3,6 +3,7 @@ import os
 import pyodbc
 import requests
 from flask import Flask, render_template, request, abort, flash, make_response
+import adal
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
@@ -22,7 +23,7 @@ def login():
             if name is not None:
                 return render_template(
                     'login.html',
-                    error = 'Welcome {}'.format(name)
+                    error = 'Welcome {}'.format(name.split('@')[0])
                 )
             else:
                 return render_template('login.html' )
@@ -35,11 +36,9 @@ def login():
             cursor = conn.cursor()
             username = cursor.execute("select LoginName from Users where LoginName='%s'"% login_name).fetchval()
             password = cursor.execute("select Password from Users where LoginName='%s'"% login_name).fetchval()
-            flash('username {}, password {} '.format(username, password))
-            flash(username == login_name and password == Password)
             if username == login_name and password == Password:
-                resp = make_response(render_template('login.html'))
-                resp.set_cookie('LoginName', login_name,message="Welcome {}!".format(login_name))
+                resp = make_response(render_template('login.html',message="Welcome {}!".format(login_name)))
+                resp.set_cookie('LoginName', login_name)
                 return resp
             else:
                 return render_template(
@@ -72,8 +71,7 @@ def key_vault():
         )
     except Exception as error:
         return render_template(
-            'login.html',
-            error="{}".format(error),
+            'error.html'
         )
 
 
@@ -81,19 +79,34 @@ def key_vault():
 def azuresql():
     if request.method == 'GET':
         try:
-            conn = pyodbc.connect(os.environ['azure_sql'])
-            cursor = conn.cursor()
-            cursor.execute("SELECT * from employee")
-            az_users = cursor.fetchall()
-            return render_template(
-                'azuresql.html',
-                az_users=az_users
-            )
+            conn = pyodbc.connect(os.environ['SQLAZURECONNSTR_azure_sql'])
+            if conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT * from employee")
+                az_users = cursor.fetchall()
+                return render_template(
+                    'azuresql.html',
+                    az_users=az_users,
+                    error = "azure_sql {}".format(os.environ['azure_sql']),
+                    message = "azure_sql1 {}".format(os.environ['azure_sql1'])
+                )
+            else:
+                conn = pyodbc.connect(os.environ['azure_sql'])
+                cursor = conn.cursor()
+                cursor.execute("SELECT * from employee")
+                az_users = cursor.fetchall()
+                return render_template(
+                    'azuresql.html',
+                    az_users=az_users,
+                    error="azure_sql {}".format(os.environ['azure_sql']),
+                    message="azure_sql1 {}".format(os.environ['azure_sql1'])
+                )
+
         except Exception as error:
              return render_template(
                 'azuresql.html',
                  error="Something went wrong {}".format(error),
-                 message =error
+                 message = "azure_sql {}".format(os.environ['azure_sql'])
             )
 
     elif request.method == 'POST':
@@ -185,7 +198,39 @@ def error404():
 def error500():
     return abort(500, "500!")
 
+@app.route('/auth')
+def get_token():
 
+    url = 'https://login.microsoftonline.com/krassy.onmicrosoft.com/oauth2/v2.0/token'
+
+    data = {
+        'grant_type': 'client_credentials',
+        'client_id': "6be1ec05-2113-4f92-a179-84eb90d05d00",
+        'scope': 'https://graph.microsoft.com/.default',
+        'client_secret': "n2mQ02=2_oWkqagb-OpGR/B_OI:?2eE/",
+    }
+
+    r = requests.post(url, data=data)
+    token = r.json().get('access_token')
+
+    headers = {
+        'Content-Type' : 'application\json',
+        'Authorization': 'Bearer {}'.format(token)
+    }
+
+    user = {
+        "accountEnabled": True,
+        "displayName": "created_from_python",
+        "mailNickname": "created_from_python",
+        "userPrincipalName": "created_from_python@krassy.onmicrosoft.com",
+        "passwordProfile": {
+            "forceChangePasswordNextSignIn": False,
+            "password": "P@ssword"
+        }
+    }
+    user_endpoint = 'https://graph.microsoft.com/v1.0/users'
+    result = requests.post(user_endpoint,data = json.dumps(user),headers=headers)
+    return result.content
 
 if __name__ == '__main__':
     app.run()
