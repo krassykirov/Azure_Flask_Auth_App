@@ -78,7 +78,7 @@ def key_vault():
 def azuresql():
     if request.method == 'GET':
         try:
-            conn = pyodbc.connect(os.environ['SQLAZURECONNSTR_azure_sql'])
+            conn = pyodbc.connect(os.environ['SQLAZURECONNSTR_azure_sql1'])
             if conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT * from employee")
