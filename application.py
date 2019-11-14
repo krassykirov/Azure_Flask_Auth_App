@@ -5,7 +5,7 @@ import requests
 from flask import Flask, render_template, request, abort, flash, make_response
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret_key'
+app.config['SECRET_KEY'] = 'secret_key' + os.urandom(12)
 
 @app.route('/')
 @app.route('/home')
@@ -183,39 +183,6 @@ def error500():
         error='500 Server Error'
     )),500
 
-@app.route('/auth')
-def get_token():
-
-    url = 'https://login.microsoftonline.com/krassy.onmicrosoft.com/oauth2/v2.0/token'
-
-    data = {
-        'grant_type': 'client_credentials',
-        'client_id': "6be1ec05-2113-4f92-a179-84eb90d05d00",
-        'scope': 'https://graph.microsoft.com/.default',
-        'client_secret': "n2mQ02=2_oWkqagb-OpGR/B_OI:?2eE/",
-    }
-
-    r = requests.post(url, data=data)
-    token = r.json().get('access_token')
-
-    headers = {
-        'Content-Type' : 'application\json',
-        'Authorization': 'Bearer {}'.format(token)
-    }
-
-    user = {
-        "accountEnabled": True,
-        "displayName": "created_from_python",
-        "mailNickname": "created_from_python",
-        "userPrincipalName": "created_from_python@krassy.onmicrosoft.com",
-        "passwordProfile": {
-            "forceChangePasswordNextSignIn": False,
-            "password": "P@ssword"
-        }
-    }
-    user_endpoint = 'https://graph.microsoft.com/v1.0/users'
-    result = requests.post(user_endpoint,data = json.dumps(user),headers=headers)
-    return result.content
 
 if __name__ == '__main__':
     app.run()
