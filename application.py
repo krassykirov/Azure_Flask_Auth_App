@@ -1,5 +1,7 @@
 import json
 import os
+import struct
+
 import pyodbc
 import requests
 from flask import Flask, render_template, request, abort, flash, make_response
@@ -78,8 +80,19 @@ def key_vault():
 def azuresql():
     if request.method == 'GET':
         try:
-            conn = pyodbc.connect(os.environ['SQLAZURECONNSTR_azure_sql1'])
-            if conn:
+            connstr = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=tcp:krsqlsrv.database.windows.net;PORT=1433;DATABASE=krassy_db;"
+            msi_endpoint = os.environ["MSI_ENDPOINT"]
+            msi_secret = os.environ["MSI_SECRET"]
+            token_auth_uri = f"{msi_endpoint}?resource=https://vault.azure.net&api-version=2017-09-01"
+            head_msi = {'Secret': msi_secret}
+            resp = requests.get(token_auth_uri, headers=head_msi)
+            access_token = resp.json()['access_token']
+            exptoken = b""
+            for i in access_token:
+                exptoken += bytes({i})
+                exptoken += bytes(1)
+                tokenstruct = struct.pack("=i", len(exptoken)) + exptoken
+                conn = pyodbc.connect(connstr, attrs_before={1256: tokenstruct})
                 cursor = conn.cursor()
                 cursor.execute("SELECT * from employee")
                 az_users = cursor.fetchall()
