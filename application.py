@@ -3,7 +3,6 @@ import os
 import pyodbc
 import requests
 from flask import Flask, render_template, request, abort, flash, make_response
-import adal
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
