@@ -8,7 +8,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key' + str(os.urandom(12))
 
 @app.route('/')
-@app.route('/home')
 def home():
     return render_template(
         'index.html',
@@ -36,7 +35,7 @@ def login():
             username = cursor.execute("select LoginName from Users where LoginName='%s'"% login_name).fetchval()
             password = cursor.execute("select Password from Users where LoginName='%s'"% login_name).fetchval()
             if username == login_name and password == Password:
-                resp = make_response(render_template('login.html',message="Welcome {}!".format(login_name)))
+                resp = make_response(render_template('login.html',message="Welcome {}!".format(login_name.split('@')[0])))
                 resp.set_cookie('LoginName', login_name)
                 return resp
             else:
