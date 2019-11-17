@@ -158,13 +158,6 @@ def about():
         title='About',
     )
 
-@app.route('/testing')
-def testing():
-    return render_template(
-        'testing.html',
-        title='Testing..',
-    )
-
 @app.route('/img')
 def img():
     return render_template(
