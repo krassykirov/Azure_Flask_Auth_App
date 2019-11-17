@@ -144,6 +144,12 @@ def api_echo():
         elif request.headers['Content-Type'] == 'application/octet-stream':
             return "Binary message written!"
 
+@app.route('/func')
+def azfunc():
+    return render_template(
+        'function.html',
+        title='Azure Function',
+    )
 
 @app.route('/about')
 def about():
