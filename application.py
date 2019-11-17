@@ -169,14 +169,14 @@ def img():
 def error404():
     return (render_template(
         'error.html',
-        error='404 Not Found..Customizing error messages..'
+        error='404 Not Found Produced..Customizing and testing error messages..'
     )),404
 
 @app.route('/500', methods=['GET', 'POST'])
 def error500():
      return (render_template(
         'error.html',
-        error='500 Internal Server Error, Customizing error messages..'
+        error='500 Internal Server Error Produced, Customizing and testing error messages..'
     )),500
 
 

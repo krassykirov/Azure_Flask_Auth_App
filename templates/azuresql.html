@@ -8,15 +8,15 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 </head>
-<h2>Example </h2>
-<h3> Fetching some test data from Azure SQL</h3>
+<h3>Example how to use Python to query an Azure SQL database</h3>
+
+     <p><a class="btn btn-primary btn-large" href="https://docs.microsoft.com/bs-cyrl-ba/azure/sql-database/sql-database-connect-query-python">Learn more &raquo;</a></p>
 
   <ul>
     {% for x in az_users %}
         <li>{{ x }}</li>
     {% endfor %}
   </ul>
- <p>{{ message }}</p>
  <p>{{ error }}</p>
 
 	<div class="container" style="min-height:100% width:80%">
@@ -61,8 +61,5 @@
       <button type="submit" class="btn btn-default">Submit</button>
   </form>
  </div>
-
-<b><a href="https://docs.microsoft.com/bs-cyrl-ba/azure/sql-database/sql-database-connect-query-python">How to Use Python to query an Azure SQL database</a></b>
-
 
 {% endblock %}
