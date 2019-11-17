@@ -60,7 +60,7 @@ def key_vault():
         head_msi = {'Secret': msi_secret}
         resp = requests.get(token_auth_uri, headers=head_msi)
         access_token = resp.json()['access_token']
-        endpoint = "https://uaekeyvault.vault.azure.net/secrets/mysecret?api-version=2016-10-01"
+        endpoint = os.environ["endpoint"]
         headers = {"Authorization": 'Bearer {}'.format(access_token)}
         response = requests.get(endpoint, headers=headers).json()
         return render_template(
