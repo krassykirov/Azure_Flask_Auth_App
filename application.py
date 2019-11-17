@@ -63,10 +63,10 @@ def key_vault():
         endpoint = "https://uaekeyvault.vault.azure.net/secrets/mysecret?api-version=2016-10-01"
         headers = {"Authorization": 'Bearer {}'.format(access_token)}
         response = requests.get(endpoint, headers=headers).json()
-        response = response['value']
         return render_template(
             'KeyVault.html',
-             message= 'The response is: {} '.format(response)
+             message= 'The response is: {} '.format(response),
+             error = response['value']
         )
     except Exception as error:
         return render_template(
