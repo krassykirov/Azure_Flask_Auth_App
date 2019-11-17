@@ -89,8 +89,7 @@ def azuresql():
              return render_template(
                 'azuresql.html',
                  error="Something went wrong {}".format(error),
-                 message =error
-            )
+             )
 
     elif request.method == 'POST':
          try:
@@ -153,7 +152,6 @@ def about():
         title='About',
     )
 
-
 @app.route('/testing')
 def testing():
     return render_template(
@@ -164,8 +162,8 @@ def testing():
 @app.route('/img')
 def img():
     return render_template(
-        'test2.html',
-        title='Testing',
+        'images.html',
+        title='Pictures',
     )
 
 @app.route('/404', methods=['GET', 'POST'])
@@ -184,4 +182,4 @@ def error500():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
