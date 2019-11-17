@@ -41,7 +41,7 @@ def login():
             else:
                 return render_template(
                     'login.html',
-                     message="You Are NOT Logged In"
+                     message="Invalid username or password!"
                 )
 
           except Exception as error:
@@ -169,14 +169,14 @@ def img():
 def error404():
     return (render_template(
         'error.html',
-        error='404 Not Found'
+        error='404 Not Found..Customizing error messages..'
     )),404
 
 @app.route('/500', methods=['GET', 'POST'])
 def error500():
      return (render_template(
         'error.html',
-        error='500 Server Error'
+        error='500 Internal Server Error, Customizing error messages..'
     )),500
 
 
