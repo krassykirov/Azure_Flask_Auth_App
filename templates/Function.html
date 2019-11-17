@@ -2,7 +2,8 @@
 {% block content %}
   <div class="container">
     <h1 class="display-4 mb-4">Send us an email</h1>
-    <hr>
+    <h4>Example of using Http-triggered Azure Function</h4>
+     <hr>
     <div id="output"></div>
     <form id="submitMessage">
       <div class="form-group">
@@ -17,6 +18,12 @@
       <input type="submit" class="btn btn-secondary" value="Submit">
     </form>
   </div>
+    <div class="col-md-4">
+        <h3>Azure Serverless Functions</h3>
+        <p><a class="btn btn-primary btn-large" href="https://azure.microsoft.com/en-us/services/functions/">Learn more about Azure Functions</a></p>
+    </div>
+
+
   <script>
     document.getElementById('submitMessage').addEventListener('submit', submitMessage);
     function processResponse(response) {
