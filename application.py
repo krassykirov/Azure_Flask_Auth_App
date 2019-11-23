@@ -1,4 +1,4 @@
-import json,pyodbc,os, requests
+import json, pyodbc,os, requests
 from flask import Flask, render_template, request, abort, flash, make_response, session, url_for,redirect
 import urllib,adal,uuid,time
 from jose import jws
