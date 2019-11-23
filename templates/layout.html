@@ -3,14 +3,14 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} Krassy Test Application</title>
+    <title>{{ title }} Krassy Test App</title>
     <link rel="icon" href="static/images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="/static/content/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/content/site.css" />
     <script src="/static/scripts/modernizr-2.6.2.js"></script>
 </head>
 
-<body background="/static/images/huston404.jpg">
+<body>
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -27,7 +27,7 @@
                     <li><a href="{{ url_for('azfunc') }}">Azure Function</a></li>
                     <li><a href="{{ url_for('azuresql') }}">Azure SQL</a></li>
                     <li><a href="{{ url_for('key_vault') }}">Azure KeyVault</a></li>
-                   <li><a href="{{ url_for('api_echo') }}">Headers</a></li>
+                    <li><a href="{{ url_for('api_echo') }}">Headers</a></li>
                     <li><a href="{{ url_for('error404') }}">404</a></li>
                     <li><a href="{{ url_for('error500') }}">500</a></li>
                     <li><a href="{{ url_for('login') }}">Login</a></li>
@@ -52,4 +52,3 @@
 
 </body>
 </html>
-

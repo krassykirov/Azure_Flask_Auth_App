@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+
+        <div class="container homepage-container">
+            <h1>Sample Login with ADAL </h1>
+            <p>This sample shows how to authenticate for Microsoft Graph with the ADAL library via OpenID Connect Flow: <b>"response_type code id_token"</b> </p>
+            <pre><strong style="color: blue;"><a href=https://docs.microsoft.com/en-us/samples/azure-samples/data-lake-analytics-python-auth-options/authenticating-your-python-application-against-azure-active-directory/" target="_blank">Authenticating your Python application against Azure Active Directory</a></strong></pre>
+            <pre><strong style="color: blue;"><a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/v1-protocols-openid-connect-code" target="_blank">Authentication flow using OpenID Connect</a></strong></pre>
+            <pre><strong style="color: blue;"><a href="https://medium.com/@darutk/diagrams-of-all-the-openid-connect-flows-6968e3990660" target="_blank">Diagrams of All The OpenID Connect Flows</a></strong></pre>
+            <p><button type="button" class="btn btn-success btn-md" onclick="window.location.href='/login'">Connect</button></p>
+            <img src="/static/images/authworkflow.png" alt="Microsoft Graph" width=550 height=400/>
+            <img src="/static/images/oauth-code-flow-web-app.png" alt="Microsoft Graph" width=570 height=450/>
+         </div>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+
+        <div class="container homepage-container">
+             <a href="https://jwt.ms/" target="_blank"><b><pre><strong style="color: blue;">Click here to Verify Tokens and Claims in JWT.ms</strong></pre></b></a>
+            <h3>Authenticated with {{ sample }}</h3>
+            <h5>{{ endpoint }}</h5>
+            <pre><b>id_token_decoded:</b> {{ id_token_decoded }}</pre>
+            <pre><b>access_token:</b> {{ access_token }}</pre>
+            <pre><b>id_token:</b> {{ id_token }}</pre>
+
+
+            <p><b>User Data:</b> </p>
+            <table border="1">
+            {% for key, value in graphdata.items() %}
+               <tr>
+                    <th> {{ key }} </th>
+                    <td> {{ value }} </td>
+               </tr>
+            {% endfor %}
+            </table>
+
+        </div>
+
+{% endblock %}
