@@ -1,14 +1,14 @@
-import json, pyodbc,os, requests
+import json, pyodbc,os, requests,datetime
 from flask import Flask, render_template, request, abort, flash, make_response, session, url_for,redirect
 import urllib,adal,uuid,time
 from jose import jws
-
+from auth import requires_auth
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key' + str(os.urandom(12))
 CLIENT_ID = '6be1ec05-2113-4f92-a179-84eb90d05d00'
 CLIENT_SECRET = "[7WgmM=Q78Qr?I2nK[R@qDQhe-:sja1x"
-REDIRECT_URI = 'https://krassy3.azurewebsites.net/login/authorized'
+REDIRECT_URI = 'http://localhost:5000/login/authorized'
 AUTHORITY_URL = 'https://login.microsoftonline.com/common'
 AUTH_ENDPOINT = '/oauth2/v2.0/authorize'
 TOKEN_ENDPOINT = '/oauth2/v2.0/token'
@@ -27,9 +27,9 @@ def home():
         title='Krassy Flask Test App'
     )
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    session.clear()
     auth_state = str(uuid.uuid4())
     SESSION.auth_state = auth_state
     prompt_behavior = 'select_account'  # prompt_behavior = 'login'
@@ -65,7 +65,6 @@ def authorized():
 
     session['access_token'] = token_response['accessToken']
     session['id_token_decoded'] = json.loads(jws.verify(id_token, keys, algorithms=['RS256']))
-
     SESSION.headers.update({'Authorization': f"Bearer {token_response['accessToken']}",
                             'User-Agent': 'adal-sample',
                             'Accept': 'application/json',
@@ -74,6 +73,10 @@ def authorized():
                             'return-client-request-id': 'true'})
 
     # print('id_token: {0},"\n", token_response: {1}'.format(id_token,token_response))
+    expires_in = datetime.datetime.now() + datetime.timedelta(seconds=token_response.get('expires_in', 3599))
+    print("access token expires at ", expires_in)
+    print(session['token_expires_in'] > datetime.datetime.now())
+    session["token_expires_in"] = expires_in
 
     return redirect('/graphcall')
 
@@ -89,7 +92,7 @@ def graphcall():
         endpoint = RESOURCE + API_VERSION + '/me'
         http_headers = {'client-request-id': str(uuid.uuid4())}
         graphdata = SESSION.get(endpoint, headers=http_headers, stream=False).json()
-
+        print(session['id_token_decoded']['email'])
         return render_template('graphcall.html',
                                      graphdata=graphdata,
                                      endpoint=endpoint,
@@ -122,6 +125,7 @@ def key_vault():
 
 
 @app.route('/azuresql', methods=['POST', 'GET'])
+@requires_auth
 def azuresql():
     if request.method == 'GET':
         try:
@@ -175,22 +179,6 @@ def azuresql():
          )
 
 
-@app.route('/echo', methods=['GET', 'POST'])
-def api_echo():
-    if request.method == 'GET':
-        hd = request.headers
-        return render_template('headers.html',hd=hd)
-
-    elif request.method == 'POST':
-        if request.headers['Content-Type'] == 'text/plain':
-            return "Text Message: " + request.data
-
-        elif request.headers['Content-Type'] == 'application/json':
-            return "JSON Message: " + json.dumps(request.json)
-
-        elif request.headers['Content-Type'] == 'application/octet-stream':
-            return "Binary message written!"
-
 @app.route('/func')
 def azfunc():
     return render_template(
@@ -219,6 +207,28 @@ def error500():
         error='500 Internal Server Error was triggered from the server..testing error messages..'
     )),500
 
+@app.route('/echo', methods=['GET', 'POST'])
+def api_echo():
+    if request.method == 'GET':
+        hd = request.headers
+        return render_template('headers.html',hd=hd)
+
+    elif request.method == 'POST':
+        if request.headers['Content-Type'] == 'text/plain':
+            return "Text Message: " + request.data
+
+        elif request.headers['Content-Type'] == 'application/json':
+            return "JSON Message: " + json.dumps(request.json)
+
+        elif request.headers['Content-Type'] == 'application/octet-stream':
+            return "Binary message written!"
+
+@app.route('/logout')
+def logout():
+    """signs out the current user from the session."""
+    session['access_token'] = None
+    session.clear()
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':
