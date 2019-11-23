@@ -2,7 +2,7 @@ import json, pyodbc,os, requests
 from flask import Flask, render_template, request, abort, flash, make_response, session, url_for,redirect
 import urllib,adal,uuid,time
 from jose import jws
-#style = "background-image: url(static/images/huston404.jpg); background-size:100% auto"
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key' + str(os.urandom(12))
