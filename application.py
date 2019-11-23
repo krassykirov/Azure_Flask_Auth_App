@@ -47,38 +47,42 @@ def login():
 @app.route('/login/authorized', methods=['GET', 'POST'])
 def authorized():
     # Handler for the application's Redirect Uri. Gets the authorization code from the flask response form dictionary.
-    code = request.form.get('code')
-    id_token = request.form.get('id_token')
-    session['id_token'] = id_token
+    try:
+        code = request.form.get('code')
+        id_token = request.form.get('id_token')
+        session['id_token'] = id_token
 
-    auth_state = request.form.get('state')
-    if auth_state != SESSION.auth_state:
-        print('state returned to redirect URL does not match!')
-        SESSION.auth_state = None
-        session.clear()
-        return redirect(url_for('/'))
+        auth_state = request.form.get('state')
+        if auth_state != SESSION.auth_state:
+            print('state returned to redirect URL does not match!')
+            SESSION.auth_state = None
+            session.clear()
+            return redirect(url_for('/'))
 
-    auth_context = adal.AuthenticationContext(AUTHORITY_URL, api_version=None)
+        auth_context = adal.AuthenticationContext(AUTHORITY_URL, api_version=None)
 
-    token_response = auth_context.acquire_token_with_authorization_code(
-        code, REDIRECT_URI, RESOURCE, CLIENT_ID, CLIENT_SECRET)
+        token_response = auth_context.acquire_token_with_authorization_code(
+            code, REDIRECT_URI, RESOURCE, CLIENT_ID, CLIENT_SECRET)
 
-    session['access_token'] = token_response['accessToken']
-    session['id_token_decoded'] = json.loads(jws.verify(id_token, keys, algorithms=['RS256']))
-    SESSION.headers.update({'Authorization': f"Bearer {token_response['accessToken']}",
-                            'User-Agent': 'adal-sample',
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'SdkVersion': 'sample-python-adal',
-                            'return-client-request-id': 'true'})
+        session['access_token'] = token_response['accessToken']
+        session['id_token_decoded'] = json.loads(jws.verify(id_token, keys, algorithms=['RS256']))
+        SESSION.headers.update({'Authorization': f"Bearer {token_response['accessToken']}",
+                                'User-Agent': 'adal-sample',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'SdkVersion': 'sample-python-adal',
+                                'return-client-request-id': 'true'})
 
-    # print('id_token: {0},"\n", token_response: {1}'.format(id_token,token_response))
-    expires_in = datetime.datetime.now() + datetime.timedelta(seconds=token_response.get('expires_in', 3599))
-    print("access token expires at ", expires_in)
-    print(session['token_expires_in'] > datetime.datetime.now())
-    session["token_expires_in"] = expires_in
+        # print('id_token: {0},"\n", token_response: {1}'.format(id_token,token_response))
 
-    return redirect('/graphcall')
+        expires_in = datetime.datetime.now() + datetime.timedelta(seconds=token_response.get('expires_in', 3599))
+        session["token_expires_in"] = expires_in
+        return redirect('/graphcall')
+    except Exception as error:
+            return (render_template(
+                'error.html',
+                error= error
+            ))
 
 @app.route('/graphcall')
 def graphcall():
