@@ -213,16 +213,6 @@ def api_echo():
         hd = request.headers
         return render_template('headers.html',hd=hd)
 
-    elif request.method == 'POST':
-        if request.headers['Content-Type'] == 'text/plain':
-            return "Text Message: " + request.data
-
-        elif request.headers['Content-Type'] == 'application/json':
-            return "JSON Message: " + json.dumps(request.json)
-
-        elif request.headers['Content-Type'] == 'application/octet-stream':
-            return "Binary message written!"
-
 @app.route('/logout')
 def logout():
     """signs out the current user from the session."""
