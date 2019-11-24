@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import session, redirect
+from flask import session, redirect,flash
 import datetime
 
 def requires_auth(f):
@@ -7,10 +7,11 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if 'access_token' not in session:
-            # Redirect to Login page
+            flash("Authorization Required, access_token is missing")
             return redirect('/login')
         if session["token_expires_in"] < datetime.datetime.now():
             # If the access token is expired, require the user to login again
+            flash("Authorization Required, access_token has expired")
             return redirect('/login')
 
         return f(*args, **kwargs)

@@ -3,18 +3,10 @@ from flask import Flask, render_template, request, abort, flash, make_response, 
 import urllib,adal,uuid,time
 from jose import jws
 from auth import requires_auth
+import config
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key' + str(os.urandom(12))
-CLIENT_ID = '6be1ec05-2113-4f92-a179-84eb90d05d00'
-CLIENT_SECRET = "[7WgmM=Q78Qr?I2nK[R@qDQhe-:sja1x"
-REDIRECT_URI = 'https://krassy3.azurewebsites.net/login/authorized'
-AUTHORITY_URL = 'https://login.microsoftonline.com/common'
-AUTH_ENDPOINT = '/oauth2/v2.0/authorize'
-TOKEN_ENDPOINT = '/oauth2/v2.0/token'
-RESOURCE = 'https://graph.microsoft.com/'
-API_VERSION = 'beta'
-SCOPES = ['User.Read']  # Add other scopes/permissions as needed.
 keys_url = 'https://login.microsoftonline.com/krassy.onmicrosoft.com/discovery/keys'
 keys_raw = requests.get(keys_url).text
 keys = json.loads(keys_raw)
@@ -22,27 +14,27 @@ SESSION = requests.Session()
 
 @app.route('/')
 def home():
-    return render_template(
-        'index.html',
-        title='Krassy Flask Test App'
-    )
-
+    return render_template('index.html', title='Krassy')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    auth_state = str(uuid.uuid4())
-    SESSION.auth_state = auth_state
-    prompt_behavior = 'select_account'  # prompt_behavior = 'login'
-    params = urllib.parse.urlencode({'response_type': 'code id_token',
-                                     'client_id': CLIENT_ID,
-                                     'redirect_uri': REDIRECT_URI,
-                                     'state': auth_state,
-                                     'nonce': str(uuid.uuid4()),
-                                     'scope': 'openid email',
-                                     'prompt': prompt_behavior,
-                                     'response_mode': 'form_post'})
+    try:
+        session.clear()
+        auth_state = str(uuid.uuid4())
+        SESSION.auth_state = auth_state
+        prompt_behavior = 'select_account'  # prompt_behavior = 'login' select_account
+        params = urllib.parse.urlencode({'response_type': 'code id_token',
+                                         'client_id': config.CLIENT_ID,
+                                         'redirect_uri': config.REDIRECT_URI,
+                                         'state': auth_state,
+                                         'nonce': str(uuid.uuid4()),
+                                         'scope': 'openid email',
+                                         'prompt': prompt_behavior,
+                                         'response_mode': 'form_post'})
+        return redirect(config.AUTHORITY_URL + '/oauth2/v2.0/authorize?' + params)
 
-    return redirect(AUTHORITY_URL + '/oauth2/v2.0/authorize?' + params)
+    except Exception as error:
+        return (render_template('error.html', message = "Something went wrong..Unable to login..", error=error ))
 
 @app.route('/login/authorized', methods=['GET', 'POST'])
 def authorized():
@@ -57,15 +49,17 @@ def authorized():
             print('state returned to redirect URL does not match!')
             SESSION.auth_state = None
             session.clear()
-            return redirect(url_for('/'))
+            flash('state returned to redirect URL does not match!')
+            return redirect(url_for('/login'))
 
-        auth_context = adal.AuthenticationContext(AUTHORITY_URL, api_version=None)
+        auth_context = adal.AuthenticationContext(config.AUTHORITY_URL, api_version=None)
 
         token_response = auth_context.acquire_token_with_authorization_code(
-            code, REDIRECT_URI, RESOURCE, CLIENT_ID, CLIENT_SECRET)
+            code, config.REDIRECT_URI, config.RESOURCE, config.CLIENT_ID, config.CLIENT_SECRET)
 
         session['access_token'] = token_response['accessToken']
         session['id_token_decoded'] = json.loads(jws.verify(id_token, keys, algorithms=['RS256']))
+        session['email'] = session['id_token_decoded']['email'].split('@')[0]
         SESSION.headers.update({'Authorization': f"Bearer {token_response['accessToken']}",
                                 'User-Agent': 'adal-sample',
                                 'Accept': 'application/json',
@@ -81,7 +75,8 @@ def authorized():
     except Exception as error:
             return (render_template(
                 'error.html',
-                error= error
+                error= error,
+                message = session["token_expires_in"]
             ))
 
 @app.route('/graphcall')
@@ -93,39 +88,16 @@ def graphcall():
             session.clear()
             return redirect(url_for('/'))
 
-        endpoint = RESOURCE + API_VERSION + '/me'
+        endpoint = config.RESOURCE + config.API_VERSION + '/me'
         http_headers = {'client-request-id': str(uuid.uuid4())}
         graphdata = SESSION.get(endpoint, headers=http_headers, stream=False).json()
-        print(session['id_token_decoded']['email'])
         return render_template('graphcall.html',
                                      graphdata=graphdata,
                                      endpoint=endpoint,
-                                     sample='ADAL',
-                                     id_token_decoded=session['id_token_decoded'],
-                                     id_token=session['id_token'],
-                                     access_token=session['access_token'])
-
-@app.route('/key_vault')
-def key_vault():
-    try:
-        msi_endpoint = os.environ["MSI_ENDPOINT"]
-        msi_secret = os.environ["MSI_SECRET"]
-        token_auth_uri = f"{msi_endpoint}?resource=https://vault.azure.net&api-version=2017-09-01"
-        head_msi = {'Secret': msi_secret}
-        resp = requests.get(token_auth_uri, headers=head_msi)
-        access_token = resp.json()['access_token']
-        endpoint = "https://uaekeyvault.vault.azure.net/secrets/mysecret?api-version=2016-10-01"
-        headers = {"Authorization": 'Bearer {}'.format(access_token)}
-        response = requests.get(endpoint, headers=headers).json()
-        return render_template(
-            'keyvault.html',
-             message =  flash("Secret Value is: {}".format(response.get('value')))
-          )
-    except Exception as error:
-        return render_template(
-            'keyvault.html'
-            # error = f'error {error}',
-        )
+                                     email=session['email'],
+                                     token_exp = session["token_expires_in"],
+                                     time = datetime.datetime.now(),
+                                     id_token_decoded=session['id_token_decoded'])
 
 
 @app.route('/azuresql', methods=['POST', 'GET'])
@@ -145,6 +117,8 @@ def azuresql():
              return render_template(
                 'azuresql.html',
                  error="Something went wrong {}".format(error),
+                 token_exp = session["token_expires_in"],
+                 time = datetime.datetime.now()
              )
 
     elif request.method == 'POST':
@@ -181,6 +155,28 @@ def azuresql():
                  'azuresql.html',
                  error=f"Something went wrong {error}"
          )
+
+@app.route('/key_vault')
+def key_vault():
+    try:
+        msi_endpoint = os.environ["MSI_ENDPOINT"]
+        msi_secret = os.environ["MSI_SECRET"]
+        token_auth_uri = f"{msi_endpoint}?resource=https://vault.azure.net&api-version=2017-09-01"
+        head_msi = {'Secret': msi_secret}
+        resp = requests.get(token_auth_uri, headers=head_msi)
+        access_token = resp.json()['access_token']
+        endpoint = "https://uaekeyvault.vault.azure.net/secrets/mysecret?api-version=2016-10-01"
+        headers = {"Authorization": 'Bearer {}'.format(access_token)}
+        response = requests.get(endpoint, headers=headers).json()
+        return render_template(
+            'keyvault.html',
+             message =  flash("Secret Value is: {}".format(response.get('value')))
+          )
+    except Exception as error:
+        return render_template(
+            'keyvault.html'
+            # error = f'error {error}',
+        )
 
 
 @app.route('/func')

@@ -2,24 +2,11 @@
 {% block content %}
 
         <div class="container homepage-container">
-             <a href="https://jwt.ms/" target="_blank"><b><pre><strong style="color: blue;">Click here to Verify Tokens and Claims in JWT.ms</strong></pre></b></a>
-            <h3>Authenticated with {{ sample }}</h3>
-            <h5>{{ endpoint }}</h5>
+          <pre style="color: blue">Hello {{email}}, you have been authenticated with ADAL </pre>
+          <pre style="color: blue">Token expiration: {{ token_exp }}, Time now: {{time}} </pre>
             <pre><b>id_token_decoded:</b> {{ id_token_decoded }}</pre>
-            <pre><b>access_token:</b> {{ access_token }}</pre>
-            <pre><b>id_token:</b> {{ id_token }}</pre>
             <img src="/static/images/authworkflow.png" alt="Microsoft Graph" width=550 height=400/>
-
-            <p><b>User Data:</b> </p>
-            <table border="1">
-            {% for key, value in graphdata.items() %}
-               <tr>
-                    <th> {{ key }} </th>
-                    <td> {{ value }} </td>
-               </tr>
-            {% endfor %}
-            </table>
-
-        </div>
+         </div>
 
 {% endblock %}
+
