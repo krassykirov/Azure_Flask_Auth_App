@@ -142,13 +142,12 @@ def azuresql():
             cursor.execute(sql, val)
             conn.commit()
             az_users = cursor.execute("select * from employee")
-            render_template(
+            return render_template(
                         'azuresql.html',
                         title='SQL Connection Testing',
                         az_users=az_users,
                         message = "Successfully Added"
                     )
-            return make_response('',201)
 
          except Exception as error:
              return render_template(
