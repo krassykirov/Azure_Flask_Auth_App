@@ -142,12 +142,13 @@ def azuresql():
             cursor.execute(sql, val)
             conn.commit()
             az_users = cursor.execute("select * from employee")
-            return render_template(
+            render_template(
                         'azuresql.html',
                         title='SQL Connection Testing',
                         az_users=az_users,
                         message = "Successfully Added"
                     )
+            return make_response('',201)
 
          except Exception as error:
              return render_template(
@@ -216,6 +217,7 @@ def api_echo():
 def logout():
     """signs out the current user from the session."""
     session['access_token'] = None
+    session["token_expires_in"] = datetime.datetime.now()
     session.clear()
     return redirect(url_for('home'))
 
