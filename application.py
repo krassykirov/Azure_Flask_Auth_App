@@ -16,6 +16,7 @@ SESSION = requests.Session()
 def home():
     return render_template('index.html', title='Krassy')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     try:
@@ -35,6 +36,7 @@ def login():
 
     except Exception as error:
         return (render_template('error.html', message = "Something went wrong..Unable to login..", error=error ))
+
 
 @app.route('/login/authorized', methods=['GET', 'POST'])
 def authorized():
