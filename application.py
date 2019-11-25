@@ -75,8 +75,7 @@ def authorized():
     except Exception as error:
             return (render_template(
                 'error.html',
-                error= error,
-                message = session["token_expires_in"]
+                error= error
             ))
 
 @app.route('/graphcall')
@@ -116,10 +115,8 @@ def azuresql():
         except Exception as error:
              return render_template(
                 'azuresql.html',
-                 error="Something went wrong {}".format(error),
-                 token_exp = session["token_expires_in"],
-                 time = datetime.datetime.now()
-             )
+                 error="Something went wrong {}".format(error)
+                )
 
     elif request.method == 'POST':
          try:
