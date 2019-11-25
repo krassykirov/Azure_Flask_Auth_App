@@ -115,7 +115,7 @@ def azuresql():
         except Exception as error:
              return render_template(
                 'azuresql.html',
-                 error="Something went wrong {}".format(error)
+                 error="Something went wrong: {}".format(error)
                 )
 
     elif request.method == 'POST':
@@ -150,7 +150,7 @@ def azuresql():
          except Exception as error:
              return render_template(
                  'azuresql.html',
-                 error=f"Something went wrong {error}"
+                 error=f"Something went wrong: {error}"
          )
 
 @app.route('/key_vault')
