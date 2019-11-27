@@ -116,7 +116,7 @@ def azuresql():
             return render_template(
                 'azuresql.html',
                 az_users=az_users,
-                message = ('operation took:', datetime.datetime.now() - now)
+                message = flash('operation took:', datetime.datetime.now() - now)
             )
         except Exception as error:
              return render_template(
@@ -150,7 +150,7 @@ def azuresql():
                         'azuresql.html',
                         title='SQL Connection Testing',
                         az_users=az_users,
-                        error = "Successfully Added operation took: {}".format(datetime.datetime.now() - now)
+                        message = flash("Successfully Added operation took: {}".format(datetime.datetime.now() - now))
                     )
 
          except Exception as error:
