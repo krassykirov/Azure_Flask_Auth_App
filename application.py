@@ -150,7 +150,7 @@ def azuresql():
                         'azuresql.html',
                         title='SQL Connection Testing',
                         az_users=az_users,
-                        message = "Successfully Added operation took: {}".format(datetime.datetime.now() - now)
+                        error = "Successfully Added operation took: {}".format(datetime.datetime.now() - now)
                     )
 
          except Exception as error:
