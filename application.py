@@ -4,6 +4,7 @@ import urllib,adal,uuid,time
 from jose import jws
 from auth import requires_auth
 import config
+#from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key' + str(os.urandom(12))
@@ -11,6 +12,7 @@ keys_url = 'https://login.microsoftonline.com/krassy.onmicrosoft.com/discovery/k
 keys_raw = requests.get(keys_url).text
 keys = json.loads(keys_raw)
 SESSION = requests.Session()
+#socketio = SOCKETIO(app)
 
 @app.route('/')
 def home():
@@ -35,7 +37,7 @@ def login():
         return redirect(config.AUTHORITY_URL + '/oauth2/v2.0/authorize?' + params)
 
     except Exception as error:
-        return (render_template('error.html', message = "Something went wrong..Unable to login..", error=error ))
+        return (render_template('error.html', message = "Something went wrong...", error=error ))
 
 
 @app.route('/login/authorized', methods=['GET', 'POST'])
@@ -87,7 +89,7 @@ def graphcall():
         if 'id_token' not in session or 'access_token' not in session:
             SESSION.auth_state = None
             session.clear()
-            return redirect(url_for('/'))
+            return redirect(url_for('/home'))
 
         endpoint = config.RESOURCE + config.API_VERSION + '/me'
         http_headers = {'client-request-id': str(uuid.uuid4())}
@@ -104,6 +106,7 @@ def graphcall():
 @app.route('/azuresql', methods=['POST', 'GET'])
 @requires_auth
 def azuresql():
+    now = datetime.datetime.now()
     if request.method == 'GET':
         try:
             conn = pyodbc.connect(os.environ['azure_sql'])
@@ -112,7 +115,8 @@ def azuresql():
             az_users = cursor.fetchall()
             return render_template(
                 'azuresql.html',
-                az_users=az_users
+                az_users=az_users,
+                message = ('operation took:', datetime.datetime.now() - now)
             )
         except Exception as error:
              return render_template(
@@ -146,7 +150,7 @@ def azuresql():
                         'azuresql.html',
                         title='SQL Connection Testing',
                         az_users=az_users,
-                        message = "Successfully Added"
+                        message = "Successfully Added operation took: {}".format(datetime.datetime.now() - now)
                     )
 
          except Exception as error:
@@ -222,4 +226,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
