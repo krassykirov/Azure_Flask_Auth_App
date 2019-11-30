@@ -109,7 +109,7 @@ def azuresql():
     now = datetime.datetime.now()
     if request.method == 'GET':
         try:
-            conn = pyodbc.connect(os.environ['azure_sql'])
+            conn = pyodbc.connect(os.environ.get('azure_sql'))
             cursor = conn.cursor()
             cursor.execute("SELECT * from employee")
             az_users = cursor.fetchall()
@@ -131,7 +131,7 @@ def azuresql():
             lname = request.form['lname']
             gender = request.form['gender']
             birth_date = request.form['birth_date']
-            conn = pyodbc.connect(os.environ['azure_sql'])
+            conn = pyodbc.connect(os.environ.get('azure_sql'))
             cursor = conn.cursor()
             az_users = list(cursor.execute("SELECT staff_number from employee"))
             for x in az_users:
@@ -163,8 +163,8 @@ def azuresql():
 @app.route('/key_vault')
 def key_vault():
     try:
-        msi_endpoint = os.environ["MSI_ENDPOINT"]
-        msi_secret = os.environ["MSI_SECRET"]
+        msi_endpoint = os.environ.get("MSI_ENDPOINT")
+        msi_secret = os.environ.get("MSI_SECRET")
         token_auth_uri = f"{msi_endpoint}?resource=https://vault.azure.net&api-version=2017-09-01"
         head_msi = {'Secret': msi_secret}
         resp = requests.get(token_auth_uri, headers=head_msi)
