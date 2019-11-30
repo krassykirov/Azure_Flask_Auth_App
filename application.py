@@ -150,13 +150,14 @@ def azuresql():
                         'azuresql.html',
                         title='SQL Connection Testing',
                         az_users=az_users,
-                        message = flash("Successfully Added, Operation took: {}s".format(datetime.datetime.now() - now))
+                        message = flash("Successfully Added, Operation took: {}s".format(datetime.datetime.now() - now),category='success')
                     )
 
          except Exception as error:
              return render_template(
                  'azuresql.html',
-                 error=f"Something went wrong: {error}"
+                 error=f"Something went wrong: {error}",
+                 message = flash("Something went wrong",category='error')
          )
 
 @app.route('/key_vault')
