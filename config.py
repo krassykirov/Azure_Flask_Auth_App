@@ -1,7 +1,7 @@
 import os
 
-CLIENT_ID = os.environ['CLIENT_ID']
-CLIENT_SECRET = os.environ['CLIENT_SECRET']
+CLIENT_ID = os.environ.get('CLIENT_ID')
+CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
 REDIRECT_URI = 'https://krassy.net/login/authorized'  #'https://krassy3.azurewebsites.net/login/authorized'
 AUTHORITY_URL = 'https://login.microsoftonline.com/common'
 AUTH_ENDPOINT = '/oauth2/v2.0/authorize'
