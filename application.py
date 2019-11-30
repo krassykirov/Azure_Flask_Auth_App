@@ -37,7 +37,7 @@ def login():
         return redirect(config.AUTHORITY_URL + '/oauth2/v2.0/authorize?' + params)
 
     except Exception as error:
-        return (render_template('error.html', message = "Something went wrong...", error=error ))
+        return render_template('error.html', message = "Something went wrong...", error=error )
 
 
 @app.route('/login/authorized', methods=['GET', 'POST'])
