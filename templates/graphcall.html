@@ -2,7 +2,7 @@
 {% block content %}
 
         <div class="container homepage-container">
-          <pre style="color: blue">Hello {{email}}, you have been authenticated with ADAL </pre>
+            <pre style="color: blue">Hello {{email}}, you have been authenticated with ADAL </pre>
           <pre style="color: blue">Token expiration: {{ token_exp }}, Time now: {{time}} </pre>
             <pre><b>id_token_decoded:</b> {{ id_token_decoded }}</pre>
             <img src="/static/images/authworkflow.png" alt="Microsoft Graph" width=550 height=400/>

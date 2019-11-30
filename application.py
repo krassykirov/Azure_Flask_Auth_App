@@ -116,7 +116,7 @@ def azuresql():
             return render_template(
                 'azuresql.html',
                 az_users=az_users,
-                message = flash('Operation took: {}s'.format(datetime.datetime.now() - now))
+                message = flash('Operation took: {}s'.format(datetime.datetime.now() - now),category='success')
             )
         except Exception as error:
              return render_template(
