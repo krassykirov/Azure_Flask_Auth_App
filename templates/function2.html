@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block content %}
+<!--Upload Form-->
+<form >
+  <table>
+    <tr>
+      <td colspan="2">File Upload</td>
+    </tr>
+    <tr>
+      <th>Select File </th>
+      <td><input id="csv" name="csv" type="file" /></td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <input type="submit" value="submit"/>
+      </td>
+    </tr>
+  </table>
+</form>
+<script>
+   $("form").submit(function(evt){
+      evt.preventDefault();
+      var formData = new FormData($(this)[0]);
+   $.ajax({
+       url: 'https://krpyblobwatermark.blob.core.windows.net/input',
+       type: 'POST',
+       data: formData,
+       async: false,
+       cache: false,
+       contentType: false,
+       enctype: 'multipart/form-data',
+       processData: false,
+       success: function (response) {
+         alert(response);
+       }
+   });
+   return false;
+ });
+</script>
+
+{% endblock %}

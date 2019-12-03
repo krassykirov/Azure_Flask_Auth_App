@@ -225,6 +225,11 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
+@app.route('/func2')
+def func2():
+    return render_template(
+        'function2.html'
+    )
 
 if __name__ == '__main__':
     app.run()
