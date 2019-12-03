@@ -43,6 +43,7 @@ def login():
                                          'prompt': prompt_behavior,
                                          'response_mode': 'form_post'})
 
+        print(AUTHORITY_URL + '/oauth2/v2.0/authorize?' + params)
         return redirect(AUTHORITY_URL + '/oauth2/v2.0/authorize?' + params)
 
     except Exception as error:
@@ -63,12 +64,12 @@ def authorized():
             SESSION.auth_state = None
             session.clear()
             flash('state returned to redirect URL does not match!')
-            return redirect(url_for('/login'))
+            return redirect(url_for('/home'))
 
         auth_context = adal.AuthenticationContext(AUTHORITY_URL, api_version=None)
 
         token_response = auth_context.acquire_token_with_authorization_code(
-            code, REDIRECT_URI, RESOURCE, CLIENT_ID, CLIENT_SECRET)
+            code, 'https://krassy.net/login/authorized', RESOURCE, CLIENT_ID, CLIENT_SECRET)
 
         session['access_token'] = token_response['accessToken']
         session['id_token_decoded'] = json.loads(jws.verify(id_token, keys, algorithms=['RS256']))
