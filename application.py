@@ -28,12 +28,13 @@ def login():
         prompt_behavior = 'select_account'  # prompt_behavior = 'login' select_account
         params = urllib.parse.urlencode({'response_type': 'code id_token',
                                          'client_id': config.CLIENT_ID,
-                                         'redirect_uri': config.REDIRECT_URI,
+                                         'redirect_uri': "https://krassy.net/login/authorized",
                                          'state': auth_state,
                                          'nonce': str(uuid.uuid4()),
                                          'scope': 'openid email',
                                          'prompt': prompt_behavior,
                                          'response_mode': 'form_post'})
+
         return redirect(config.AUTHORITY_URL + '/oauth2/v2.0/authorize?' + params)
 
     except Exception as error:
@@ -232,4 +233,4 @@ def func2():
     )
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
