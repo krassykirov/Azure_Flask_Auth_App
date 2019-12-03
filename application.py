@@ -3,11 +3,19 @@ from flask import Flask, render_template, request, abort, flash, make_response, 
 import urllib,adal,uuid,time
 from jose import jws
 from auth import requires_auth
-import config
 #from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key' + str(os.urandom(12))
+CLIENT_ID = os.environ['CLIENT_ID']
+CLIENT_SECRET = os.environ['CLIENT_SECRET']
+REDIRECT_URI = 'https://krassy.net/login/authorized',
+AUTHORITY_URL = 'https://login.microsoftonline.com/common'
+AUTH_ENDPOINT = '/oauth2/v2.0/authorize'
+TOKEN_ENDPOINT = '/oauth2/v2.0/token'
+RESOURCE = 'https://graph.microsoft.com/'
+API_VERSION = 'beta'
+SCOPES = ['User.Read']
 keys_url = 'https://login.microsoftonline.com/krassy.onmicrosoft.com/discovery/keys'
 keys_raw = requests.get(keys_url).text
 keys = json.loads(keys_raw)
@@ -27,8 +35,8 @@ def login():
         SESSION.auth_state = auth_state
         prompt_behavior = 'select_account'  # prompt_behavior = 'login' select_account
         params = urllib.parse.urlencode({'response_type': 'code id_token',
-                                         'client_id': config.CLIENT_ID,
-                                         'redirect_uri': "https://krassy.net/login/authorized",
+                                         'client_id': CLIENT_ID,
+                                         'redirect_uri': REDIRECT_URI,
                                          'state': auth_state,
                                          'nonce': str(uuid.uuid4()),
                                          'scope': 'openid email',
@@ -60,7 +68,7 @@ def authorized():
         auth_context = adal.AuthenticationContext(config.AUTHORITY_URL, api_version=None)
 
         token_response = auth_context.acquire_token_with_authorization_code(
-            code, config.REDIRECT_URI, config.RESOURCE, config.CLIENT_ID, config.CLIENT_SECRET)
+            code, REDIRECT_URI, RESOURCE, CLIENT_ID, CLIENT_SECRET)
 
         session['access_token'] = token_response['accessToken']
         session['id_token_decoded'] = json.loads(jws.verify(id_token, keys, algorithms=['RS256']))
