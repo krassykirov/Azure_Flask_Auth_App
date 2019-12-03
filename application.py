@@ -7,8 +7,8 @@ from auth import requires_auth
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key' + str(os.urandom(12))
-CLIENT_ID = os.environ['CLIENT_ID']
-CLIENT_SECRET = os.environ['CLIENT_SECRET']
+CLIENT_ID = '6be1ec05-2113-4f92-a179-84eb90d05d00' # os.environ['CLIENT_ID']
+CLIENT_SECRET = "[7WgmM=Q78Qr?I2nK[R@qDQhe-:sja1x" #os.environ['CLIENT_SECRET']
 REDIRECT_URI = 'https://krassy.net/login/authorized',
 AUTHORITY_URL = 'https://login.microsoftonline.com/common'
 AUTH_ENDPOINT = '/oauth2/v2.0/authorize'
@@ -36,14 +36,14 @@ def login():
         prompt_behavior = 'select_account'  # prompt_behavior = 'login' select_account
         params = urllib.parse.urlencode({'response_type': 'code id_token',
                                          'client_id': CLIENT_ID,
-                                         'redirect_uri': REDIRECT_URI,
+                                         'redirect_uri': 'https://krassy.net/login/authorized',
                                          'state': auth_state,
                                          'nonce': str(uuid.uuid4()),
                                          'scope': 'openid email',
                                          'prompt': prompt_behavior,
                                          'response_mode': 'form_post'})
 
-        return redirect(config.AUTHORITY_URL + '/oauth2/v2.0/authorize?' + params)
+        return redirect(AUTHORITY_URL + '/oauth2/v2.0/authorize?' + params)
 
     except Exception as error:
         return render_template('error.html', message = "Something went wrong...", error=error )
@@ -65,7 +65,7 @@ def authorized():
             flash('state returned to redirect URL does not match!')
             return redirect(url_for('/login'))
 
-        auth_context = adal.AuthenticationContext(config.AUTHORITY_URL, api_version=None)
+        auth_context = adal.AuthenticationContext(AUTHORITY_URL, api_version=None)
 
         token_response = auth_context.acquire_token_with_authorization_code(
             code, REDIRECT_URI, RESOURCE, CLIENT_ID, CLIENT_SECRET)
@@ -100,7 +100,7 @@ def graphcall():
             session.clear()
             return redirect(url_for('/home'))
 
-        endpoint = config.RESOURCE + config.API_VERSION + '/me'
+        endpoint = RESOURCE + API_VERSION + '/me'
         http_headers = {'client-request-id': str(uuid.uuid4())}
         graphdata = SESSION.get(endpoint, headers=http_headers, stream=False).json()
         return render_template('graphcall.html',
