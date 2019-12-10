@@ -36,7 +36,7 @@ def login():
         prompt_behavior = 'select_account'  # prompt_behavior = 'login' select_account
         params = urllib.parse.urlencode({'response_type': 'code id_token',
                                          'client_id': CLIENT_ID,
-                                         'redirect_uri': 'https://krassy.net/login/authorized',
+                                         'redirect_uri': REDIRECT_URI,
                                          'state': auth_state,
                                          'nonce': str(uuid.uuid4()),
                                          'scope': 'openid email',
