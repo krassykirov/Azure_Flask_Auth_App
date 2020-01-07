@@ -4,4 +4,5 @@
     <img src="https://azuredeploy.net/deploybutton.png"/>
 </a>
 <p>Simple Python Flask Application for testing Azure Functions, Git and ARM Template deployment and Git. </p>
-ARM Template <a href= https://github.com/krassykirov/DeployFlaskAppAzureARM.git </a>
+
+ARM Template: <a href= "https://github.com/krassykirov/DeployFlaskAppAzureARM.git"</a>
