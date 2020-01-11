@@ -113,7 +113,7 @@ def graphcall():
 
 
 @app.route('/azuresql', methods=['POST', 'GET'])
-@requires_auth
+#@requires_auth
 def azuresql():
     now = datetime.datetime.now()
     if request.method == 'GET':
