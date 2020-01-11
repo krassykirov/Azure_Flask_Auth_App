@@ -172,6 +172,7 @@ def azuresql():
 @app.route('/key_vault')
 def key_vault():
     try:
+        # Get a secret from KeyVault using MSI
         msi_endpoint = os.environ.get("MSI_ENDPOINT")
         msi_secret = os.environ.get("MSI_SECRET")
         token_auth_uri = f"{msi_endpoint}?resource=https://vault.azure.net&api-version=2017-09-01"
