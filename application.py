@@ -7,7 +7,7 @@ from auth import requires_auth
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key' + str(os.urandom(12))
-CLIENT_ID =  os.environ['CLIENT_ID']
+CLIENT_ID = os.environ['CLIENT_ID']
 CLIENT_SECRET = os.environ['CLIENT_SECRET']
 REDIRECT_URI = 'https://krassy.net/login/authorized',
 AUTHORITY_URL = 'https://login.microsoftonline.com/common'
@@ -36,7 +36,7 @@ def login():
         prompt_behavior = 'select_account'  # prompt_behavior = 'login' select_account
         params = urllib.parse.urlencode({'response_type': 'code id_token',
                                          'client_id': CLIENT_ID,
-                                         'redirect_uri': REDIRECT_URI,
+                                         'redirect_uri': 'https://krassy.net/login/authorized',
                                          'state': auth_state,
                                          'nonce': str(uuid.uuid4()),
                                          'scope': 'openid email',
@@ -81,11 +81,10 @@ def authorized():
                                 'SdkVersion': 'sample-python-adal',
                                 'return-client-request-id': 'true'})
 
-        # print('id_token: {0},"\n", token_response: {1}'.format(id_token,token_response))
-
         expires_in = datetime.datetime.now() + datetime.timedelta(seconds=token_response.get('expires_in', 3599))
         session["token_expires_in"] = expires_in
         return redirect('/graphcall')
+
     except Exception as error:
             return (render_template(
                 'error.html',
