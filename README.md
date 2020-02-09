@@ -4,6 +4,6 @@
     <img src="https://azuredeploy.net/deploybutton.png"/>
 </a>
 
-<p>Simple Python Flask Application for testing Azure SQL fetch and write data from App Services, Azure HTTP Triggered Functions, Getting Key Vault Secret, ARM Template deployment </p>
+<p>Simple Python Flask Application for testing Azure SQL fetch and write data, Azure HTTP Triggered Functions, Getting Key Vault Secret, ARM Template deployment </p>
 
  <a href= "https://github.com/krassykirov/DeployFlaskAppAzureARM.git"> ARM Template </a>
