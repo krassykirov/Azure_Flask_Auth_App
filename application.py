@@ -234,7 +234,10 @@ def logout():
     session["token_expires_in"] = datetime.datetime.now()
     session.clear()
     return redirect(url_for('home'))
-
+    # tenant = 'krassy.onmicrosoft.com'
+    # authority_host_uri = 'https://login.microsoftonline.com'
+    # authority_uri = authority_host_uri + '/' + tenant
+    # return redirect(authority_uri+'/oauth2/v2.0/logout?'+ "post_logout_redirect_uri=" + "https://krassy.net")
 
 if __name__ == '__main__':
     app.run()
